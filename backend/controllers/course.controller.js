@@ -41,3 +41,63 @@ export const createCourse = async (req, res)=>{
         res.status(500).json({error: "Error creating course!", error})
     }
 }
+export const updateCourse = async (req, res)=>{
+    const {courseId} = req.params;
+    const {title, description, price, image} = req.body;
+    try{
+      const course = await Course.updateOne(
+      {
+        _id: courseId,
+      },
+      {
+        title, 
+        description,
+        price,
+        image: {
+            public_id: image?.public_id,
+            url: image?.url,
+          },
+      }
+);
+    res.status(201).json({message: "Course updated successfully"})
+    }catch(error){
+    res.status(500).json({error: "Error in course updating", error});
+    }
+};
+export const deleteCourse = async (req, res)=>{
+    const {courseId} = req.params;
+    try{
+        const course = await Course.findOneAndDelete({
+            _id:courseId,   
+        })
+        if(!course){
+            return res.status(404).json({error:"Course not found"})
+        }
+        res.status(200).json({message:"Course deleted successfully"})
+    } catch(error){
+        res.status(500).json({errors:"Error in course deleting"})
+        console.log("Error in course deleting", error);
+    }
+}
+export const getCourses = async (req, res)=>{
+    try{
+        const courses = await Course.find({})
+        res.status(201).json({courses});
+    } catch(error){
+        res.status(500).json({errors: "Error in getting courses"});
+        console.log("Error getting courses", error);
+    }
+}
+export const courseDetails = async(req, res) => {
+    const {courseId} = req.params;
+    try{
+        const course = await Course.findById(courseId);
+        if(!course){
+            return res.status(404).json({error: "Course not found"})
+        }
+        res.status(200).json({course});
+    } catch(error){
+        res.status(500).json({errors: "Error in getting course details"});
+        console.log("Error in course details", error);
+    }
+}
