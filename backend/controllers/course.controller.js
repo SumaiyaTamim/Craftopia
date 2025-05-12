@@ -1,7 +1,9 @@
 import { Course } from "../models/course.model.js";
+import { Purchase } from "../models/purchase.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
 export const createCourse = async (req, res)=>{
+    const adminId = req.adminId;
     const {title, description, price, image} = req.body;
     try{
         if(!title || !description || !price){
@@ -31,6 +33,7 @@ export const createCourse = async (req, res)=>{
         public_id: cloud_response.public_id,
         url: cloud_response.url,
       },
+       creatorId: adminId,
     };
        
     const course = await Course.create(courseData);
@@ -42,12 +45,14 @@ export const createCourse = async (req, res)=>{
     }
 }
 export const updateCourse = async (req, res)=>{
+    const adminId = req.adminId;
     const {courseId} = req.params;
     const {title, description, price, image} = req.body;
     try{
       const course = await Course.updateOne(
       {
         _id: courseId,
+        creatorId: adminId,
       },
       {
         title, 
@@ -59,16 +64,18 @@ export const updateCourse = async (req, res)=>{
           },
       }
 );
-    res.status(201).json({message: "Course updated successfully"})
+    res.status(201).json({message: "Course updated successfully", course})
     }catch(error){
     res.status(500).json({error: "Error in course updating", error});
     }
 };
 export const deleteCourse = async (req, res)=>{
+    const adminId = req.adminId;
     const {courseId} = req.params;
     try{
         const course = await Course.findOneAndDelete({
-            _id:courseId,   
+            _id:courseId,  
+            creatorId: adminId, 
         })
         if(!course){
             return res.status(404).json({error:"Course not found"})
@@ -99,5 +106,25 @@ export const courseDetails = async(req, res) => {
     } catch(error){
         res.status(500).json({errors: "Error in getting course details"});
         console.log("Error in course details", error);
+    }
+}
+export const buyCourses = async(req, res) =>{
+    const {userId} = req;
+    const {courseId} = req.params;
+    try{
+        const course = await Course.findById(courseId);
+        if(!course){
+            return res.status(404).json({error:"Course not found"});
+        }
+        const existingPurchase=await Purchase.findOne({userId, courseId});
+        if(existingPurchase){
+            return res.status(400).json({error:"User has already purchased this course"});
+        }
+        const newPurchase = new Purchase({userId, courseId});
+        await newPurchase.save();
+        res.status(201).json({message:"Course purchased successfully!", newPurchase})
+    } catch(error){
+        res.status(500).json({errors:"Error in course buying!"});
+        console.log("error in course buying", error);
     }
 }
