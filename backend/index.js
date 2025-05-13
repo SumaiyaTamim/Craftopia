@@ -7,6 +7,7 @@ import courseRoute from "./routes/course.route.js";
 import userRoute from "./routes/user.route.js";
 import adminRoute from "./routes/admin.route.js";
 
+import cors from "cors";
 import fileUpload from "express-fileupload";
 import cookieParser from "cookie-parser";
 
@@ -21,6 +22,14 @@ app.use(
       useTempFiles: true,
       tempFileDir: "/tmp/",
     })
+);
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
 
 
