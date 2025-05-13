@@ -10,24 +10,53 @@ import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import toast from "react-hot-toast";
 
 function Home() {
  const [courses, setCourses] = useState([]);
- useEffect(()=>{
-    const fetchCourses=async()=>{
-    try{
-        const response=await axios.get("http://localhost:4002/api/v1/course/courses", 
-        {
-          withCredentials: true,
-        })
-        console.log(response.data.courses)
-        setCourses(response.data.courses);
-    } catch(error){
-        console.log("Error in fetching courses!", error)
+ const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // token
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
- };
- fetchCourses();
- },[])
+  }, []);
+
+  //fetch courses 
+    useEffect(()=>{
+      const fetchCourses=async()=>{
+      try{
+          const response=await axios.get("http://localhost:4002/api/v1/course/courses", 
+          {
+            withCredentials: true,
+          })
+          console.log(response.data.courses)
+          setCourses(response.data.courses);
+      } catch(error){
+          console.log("Error in fetching courses!", error)
+      }
+  };
+  fetchCourses();
+  },[])
+
+ const handleLogout = async()=>{
+    try{
+       const response = await axios.get("http://localhost:4002/api/v1/user/logout", {
+        withCredentials: true,
+      });
+      toast.success(response.data.message);
+
+      setIsLoggedIn(false);
+
+    } catch(error){
+      console.log("Error in logging out!", error)
+      toast.error(error.response.data.errors || "Error in logging out");
+    }
+ }
 
  var settings = {
     dots: true,
@@ -66,6 +95,7 @@ function Home() {
   };
 
   return (
+    <div className="bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen">
     <div className='bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen flex flex-col'>
         <div className='ml-20 mr-20'>
             <header className='flex items-center justify-between p-6'>
@@ -73,22 +103,44 @@ function Home() {
                   <img src={logo} alt="" className='h-10 w-10'/>
                   <h1 className='text-2xl text-[#5E4E3A] font-bold'>Craftopia</h1>
                 </div>
-                <div className='space-x-2'>
-                    <Link to={"/login"} className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
-                     hover:bg-black transition-all duration-300'>Login</Link>
-                    <Link to={"/signup"} className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold hover:bg-black
-                    transition-all duration-300'>Signup</Link>
-                </div>
+                 <div className="space-x-4">
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
+                     hover:bg-black transition-all duration-300'
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to={"/login"}
+                 className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
+                     hover:bg-black transition-all duration-300'
+                >
+                  Login
+                </Link>
+                <Link
+                  to={"/signup"}
+                 className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
+                     hover:bg-black transition-all duration-300'
+                >
+                  Signup
+                </Link>
+              </>
+            )}
+          </div>
             </header>
 
             <section className='text-center'>
                 <h1 className='text-2xl text-[#5E4E3A] font-semibold'>Craftopia</h1>
                 <p className='text-[#5E4E3A]'>Unleash Your Creativity – Master Any Craft, One Skill at a Time.</p><br/>
                 <div className='space-x-2'>
-                    <button className='text-white bg-[#80461B] text-base py-3 px-6 rounded font-semibold 
+                    <Link to={"/courses"} className='text-white bg-[#80461B] text-base py-3 px-6 rounded font-semibold 
                     hover:bg-black
                     transition-all duration-300'>
-                    Explore Courses</button>
+                    Explore Courses</Link>
                     <button className='text-white bg-[#80461B] text-base py-3 px-6 rounded font-semibold
                      hover:bg-black
                     transition-all duration-300'>
@@ -120,6 +172,7 @@ function Home() {
           </div>
         </div>
       </div>
+      
     ))}
   </Slider>
 </section>
@@ -174,6 +227,7 @@ function Home() {
             </footer>
 
         </div>
+    </div>
     </div>
   )
 }
