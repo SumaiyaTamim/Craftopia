@@ -95,7 +95,6 @@ function Home() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen">
     <div className='bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen flex flex-col'>
         <div className='ml-20 mr-20'>
             <header className='flex items-center justify-between p-6'>
@@ -172,7 +171,6 @@ function Home() {
           </div>
         </div>
       </div>
-      
     ))}
   </Slider>
 </section>
@@ -227,7 +225,6 @@ function Home() {
             </footer>
 
         </div>
-    </div>
     </div>
   )
 }

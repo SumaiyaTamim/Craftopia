@@ -57,8 +57,8 @@ function Signup() {
           <div className="flex items-center space-x-4">
             <Link
               to={"/login"}
-              className="className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
-                     hover:bg-black transition-all duration-300'"
+              className='text-white bg-[#80461B] text-base py-1 px-3 border border rounded font-semibold
+                     hover:bg-black transition-all duration-300'
             >
               Login
             </Link>

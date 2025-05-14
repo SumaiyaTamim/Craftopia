@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import courseRoute from "./routes/course.route.js";
 import userRoute from "./routes/user.route.js";
 import adminRoute from "./routes/admin.route.js";
+import orderRoute from "./routes/order.route.js";
 
 import cors from "cors";
 import fileUpload from "express-fileupload";
@@ -46,6 +47,7 @@ try{
 app.use("/api/v1/course", courseRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/order", orderRoute);
 
 // Cloudinary configuration code
 cloudinary.config({

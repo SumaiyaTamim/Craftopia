@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios"; 
 import { FaCircleUser } from "react-icons/fa6";
@@ -17,9 +16,7 @@ function Courses() {
   const [courses, setCourses] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to toggle sidebar
-
-  console.log("courses: ", courses);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Check token
   useEffect(() => {
@@ -38,7 +35,6 @@ function Courses() {
         const response = await axios.get("http://localhost:4002/api/v1/course/courses", {
           withCredentials: true,
         });
-        console.log(response.data.courses);
         setCourses(response.data.courses);
         setLoading(false);
       } catch (error) {
@@ -63,19 +59,19 @@ function Courses() {
     }
   };
 
-  // Toggle sidebar for mobile devices
+  // Toggle sidebar
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <div className="flex">
-      {/* Hamburger menu button for mobile */}
+      {/* Mobile menu button */}
       <button
         className="md:hidden fixed top-4 left-4 z-20 text-3xl text-gray-800"
         onClick={toggleSidebar}
       >
-        {isSidebarOpen ? <HiX /> : <HiMenu />} {/* Toggle menu icon */}
+        {isSidebarOpen ? <HiX /> : <HiMenu />}
       </button>
 
       {/* Sidebar */}
@@ -105,20 +101,20 @@ function Courses() {
               </a>
             </li>
             <li className="mb-4">
-              <a href="#" className="flex items-center  text-white">
+              <a href="#" className="flex items-center text-white">
                 <IoMdSettings className="mr-2" /> Settings
               </a>
             </li>
             <li>
               {isLoggedIn ? (
                 <Link to={"/"}
-                  className="flex items-center  text-white"
+                  className="flex items-center text-white"
                   onClick={handleLogout}
                 >
                   <IoLogOut className="mr-2" /> Logout
                 </Link>
               ) : (
-                <Link to={"/login"} className="flex items-center  text-white">
+                <Link to={"/login"} className="flex items-center text-white">
                   <IoLogIn className="mr-2" /> Login
                 </Link>
               )}
@@ -128,66 +124,64 @@ function Courses() {
       </aside>
 
       {/* Main content */}
-      <main className="ml-0 bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen w-full p-10">
-        <header className="flex justify-end items-center mb-10">
-          {/* <h1 className="text-xl font-bold">Browse All Courses Here!</h1> */}
+      <main className={`ml-0 bg-gradient-to-r from-[#FDFCFB] to-[#E2D1C3] min-h-screen w-full p-4 md:p-6 ${
+        isSidebarOpen ? "md:ml-64" : "md:ml-0"
+      }`}>
+        <header className="flex justify-end items-center mb-6">
           <div className="flex items-center space-x-3">
             <div className="flex items-center">
               <input
                 type="text"
-                placeholder="Type here to search..."
-                className="border border-gray-300 rounded-l-full px-4 py-2 h-10 focus:outline-none"
+                placeholder="Search..."
+                className="border border-gray-300 rounded-l-full px-4 py-2 h-10 focus:outline-none w-40 md:w-auto"
               />
               <button className="h-10 border bg-[#80461B] rounded-r-full px-4 flex items-center justify-center">
                 <FiSearch className="text-xl text-white" />
               </button>
             </div>
-
-            <FaCircleUser className="text-4xl text-[#80461B]" />
+            <FaCircleUser className="text-3xl text-[#80461B]" />
           </div>
         </header>
 
-        {/* Vertically Scrollable Courses Section */}
-        <div className="overflow-y-auto h-[75vh]">
+        {/* Courses Section */}
+        <div className="overflow-y-auto h-[75vh] pr-2">
           {loading ? (
             <p className="text-center text-gray-500">Loading...</p>
           ) : courses.length === 0 ? (
-            // Check if courses array is empty
-            <p className="text-center text-gray-500">
-              No course posted yet by admin
-            </p>
+            <p className="text-center text-gray-500">No courses available</p>
           ) : (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {courses.map((course) => (
                 <div
                   key={course._id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-lg"
+                  className="bg-white border border-gray-200 rounded-lg shadow hover:shadow-md transition-shadow duration-300"
                 >
                   <img
                     src={course.image.url}
                     alt={course.title}
-                    className="rounded mb-4"
+                    className="w-full h-32 object-cover rounded-t-lg"
                   />
-                  <h2 className="font-semibold text-lg mb-2">{course.title}</h2>
-                  <p className="text-gray-600 mb-4 text-base">
-                    {course.description.length > 100
-                      ? `${course.description.slice(0, 100)}...`
-                      : course.description}
-                  </p>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-base">
-                      ${course.price}{" "}
-                      <span className="text-gray-500 font-semibold line-through">$150</span>
-                    </span>
+                  <div className="p-3">
+                    <h2 className="font-semibold text-sm line-clamp-1 mb-1">{course.title}</h2>
+                    <p className="text-gray-600 text-xs line-clamp-2 mb-2">
+                      {course.description}
+                    </p>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-bold text-xs">
+                        ${course.price}{" "}
+                        <span className="text-gray-500 text-xs line-through">$150</span>
+                      </span>
+                      <span className="text-green-600 text-xs font-semibold bg-green-100 px-2 py-1 rounded">
+                        20% off
+                      </span>
+                    </div>
+                    <Link
+                      to={`/buy/${course._id}`}
+                      className="block w-full bg-[#80461B] text-white text-center text-xs px-3 py-2 rounded hover:bg-black transition-colors duration-300"
+                    >
+                      Buy Now
+                    </Link>
                   </div>
-
-                  {/* Buy page */}
-                  <Link
-                    to={`/buy/${course._id}`} // Pass courseId in URL
-                    className="bg-[#80461B] w-full text-white px-4 py-2 rounded-lg hover:bg-black duration-300"
-                  >
-                    Buy Now
-                  </Link>   <span className="text-green-600 font-semibold ml-24">20% off!</span>
                 </div>
               ))}
             </div>
@@ -195,7 +189,6 @@ function Courses() {
         </div>
       </main>
     </div>
-
   );
 }
 

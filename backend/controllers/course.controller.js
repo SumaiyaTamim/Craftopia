@@ -1,6 +1,8 @@
 import { Course } from "../models/course.model.js";
 import { Purchase } from "../models/purchase.model.js";
 import { v2 as cloudinary } from "cloudinary";
+import Stripe from "stripe";
+import config from "../config.js";
 
 export const createCourse = async (req, res)=>{
     const adminId = req.adminId;
@@ -108,6 +110,8 @@ export const courseDetails = async(req, res) => {
         console.log("Error in course details", error);
     }
 }
+
+const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 export const buyCourses = async(req, res) =>{
     const {userId} = req;
     const {courseId} = req.params;
@@ -120,9 +124,20 @@ export const buyCourses = async(req, res) =>{
         if(existingPurchase){
             return res.status(400).json({error:"User has already purchased this course"});
         }
-        const newPurchase = new Purchase({userId, courseId});
-        await newPurchase.save();
-        res.status(201).json({message:"Course purchased successfully!", newPurchase})
+         // stripe payment 
+        const amount = course.price;
+        const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "hkd",
+        payment_method_types: ["card"],
+        });
+
+        res.status(201).json({
+        message: "Course purchased successfully",
+        course,
+        clientSecret: paymentIntent.client_secret,
+        });
+
     } catch(error){
         res.status(500).json({errors:"Error in course buying!"});
         console.log("error in course buying", error);
